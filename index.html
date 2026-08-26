@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>99Food Interface Clone</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f7f7f8;
+      display: flex;
+      justify-content: center;
+      color: #333;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 420px;
+      background-color: #ffffff;
+      min-height: 100vh;
+      padding-bottom: 80px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    /* Top Header */
+    .header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      z-index: 10;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #d1e3ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .avatar-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background-color: #ff3b30;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    .search-bar {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background-color: #f2f3f5;
+      padding: 8px 14px;
+      border-radius: 20px;
+      gap: 8px;
+    }
+
+    .search-bar input {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .cart-btn {
+      position: relative;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      background-color: #ff3b30;
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 2px 5px;
+      border-radius: 10px;
+    }
+
+    /* Filters horizontal scroll */
+    .filters {
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filters::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      background-color: #f2f3f5;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .chip.filter-icon {
+      padding: 6px 10px;
+    }
+
+    /* Restaurant List */
+    .restaurant-list {
+      padding: 8px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      display: flex;
+      gap: 12px;
+      position: relative;
+    }
+
+    .card-thumb {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      object-fit: cover;
+      position: relative;
+      background-color: #eee;
+    }
+
+    .thumb-wrapper {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      flex-shrink: 0;
+    }
+
+    .time-badge {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 16px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .card-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .heart-icon {
+      color: #888;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .details {
+      font-size: 13px;
+      color: #777;
+    }
+
+    .promo-tag {
+      align-self: flex-start;
+      background-color: #e8f7ed;
+      color: #00a651;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 4px;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Floating Dock */
+    .bottom-nav {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 380px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      border-radius: 30px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 16px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .nav-item.active {
+      color: #000;
+      font-weight: bold;
+    }
+
+    .center-btn {
+      width: 44px;
+      height: 44px;
+      background-color: #ffe600;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: -20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      font-size: 18px;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="avatar-wrapper">
+        <div class="avatar">👤</div>
+        <div class="avatar-badge"></div>
+      </div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar pratos ou restaurantes..." onkeyup="filterList()">
+      </div>
+      <div class="cart-btn">
+        🛒
+        <span class="cart-badge">18</span>
+      </div>
+    </header>
+
+    <!-- Filter Pills -->
+    <div class="filters">
+      <div class="chip filter-icon">⚙️</div>
+      <div class="chip">Ordenar por ▾</div>
+      <div class="chip">Entrega grátis</div>
+      <div class="chip">VR ▾</div>
+      <div class="chip">Ofertas</div>
+      <div class="chip">Entrega da 99</div>
+    </div>
+
+    <!-- Restaurant Cards -->
+    <div class="restaurant-list" id="restaurantList">
+      
+      <div class="card" data-tags="chef gourmet pizza">
+        <div class="thumb-wrapper">
+          <img class="card-thumb" src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200" alt="Pizza">
+          <div class="time-badge">Abre às<br>11:00</div>
+        </div>
+        <div class="card-info">
+          <div class="card-header">
+            <span class="title">chef gourmet</span>
+            <span class="heart-icon">♡</span>
+          </div>
+          <div class="details">Pizza • 2.6km</div>
+          <div class="promo-tag">🏷️ 40% OFF</div>
+        </div>
+      </div>
+
+      <div class="card" data-tags="hot dog jesus reina lanches cachorro quente">
+        <div class="thumb-wrapper">
+          <img class="card-thumb" src="https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=200" alt="Hot Dog">
+          <div class="time-badge">Abre às<br>18:30</div>
+        </div>
+        <div class="card-info">
+          <div class="card-header">
+            <span class="title">Hot dog Jesus reina</span>
+            <span class="heart-icon">♡</span>
+          </div>
+          <div class="details">Lanches • 2.6km</div>
+          <div class="promo-tag">🏷️ 40% OFF</div>
+        </div>
+      </div>
+
+      <div class="card" data-tags="república dos sabores lanches hamburguer">
+        <div class="thumb-wrapper">
+          <img class="card-thumb" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200" alt="Hambúrguer">
+          <div class="time-badge">Abre às<br>19:00</div>
+        </div>
+        <div class="card-info">
+          <div class="card-header">
+            <span class="title">República dos sabores</span>
+            <span class="heart-icon">♡</span>
+          </div>
+          <div class="details">Lanches • 0.9km</div>
+          <div class="promo-tag">Itens com até 20% OFF</div>
+        </div>
+      </div>
+
+      <div class="card" data-tags="quintal do açaí acai doces">
+        <div class="thumb-wrapper">
+          <img class="card-thumb" src="https://images.unsplash.com/photo-1590301157890-4810ed352733?w=200" alt="Açaí">
+          <div class="time-badge">Abre às<br>11:31</div>
+        </div>
+        <div class="card-info">
+          <div class="card-header">
+            <span class="title">Quintal do Açaí</span>
+            <span class="heart-icon">♡</span>
+          </div>
+          <div class="details">Açaí • 0.9km</div>
+          <div class="promo-tag">🏷️ 40% OFF</div>
+        </div>
+      </div>
+
+      <div class="card" data-tags="churrasco do chef brasileira carne">
+        <div class="thumb-wrapper">
+          <img class="card-thumb" src="https://images.unsplash.com/photo-1544025162-d76694265947?w=200" alt="Churrasco">
+          <div class="time-badge">Abre às<br>10:00</div>
+        </div>
+        <div class="card-info">
+          <div class="card-header">
+            <span class="title">Churrasco do Chef</span>
+            <span class="heart-icon">♡</span>
+          </div>
+          <div class="details">Brasileira • 2.8km</div>
+          <div class="promo-tag">Itens com até 22% OFF</div>
+        </div>
+      </div>
+
+      <div id="noResults" class="no-results">Nenhum restaurante encontrado.</div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="bottom-nav">
+      <div class="nav-item">
+        <span>🚗</span>
+        <span>Corrida</span>
+      </div>
+      <div class="center-btn">
+        <span>↑</span>
+      </div>
+      <div class="nav-item active">
+        <span>🛍️</span>
+        <span>Entrega</span>
+      </div>
+      <div class="nav-item">
+        <span>💳</span>
+        <span>Pay</span>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    function filterList() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.card');
+      let found = false;
+
+      cards.forEach(card => {
+        const tags = card.getAttribute('data-tags');
+        if (tags.toLowerCase().includes(input)) {
+          card.style.display = 'flex';
+          found = true;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      document.getElementById('noResults').style.display = found ? 'none' : 'block';
+    }
+  </script>
+</body>
+</html>
