@@ -3,424 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>99Food Interface Clone</title>
+  <title>99Food Full Interactive Clone</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --primary: #ffe600;
+      --accent: #00a651;
+      --text: #1d1d1f;
+      --subtext: #6e6e73;
     }
 
-    body {
-      background-color: #f7f7f8;
-      display: flex;
-      justify-content: center;
-      color: #333;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); display: flex; justify-content: center; }
 
-    .app-container {
-      width: 100%;
-      max-width: 420px;
-      background-color: #ffffff;
-      min-height: 100vh;
-      padding-bottom: 80px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.05);
-      position: relative;
+    .app {
+      width: 100%; max-width: 430px; background: var(--card-bg); min-height: 100vh;
+      display: flex; flex-direction: column; position: relative; padding-bottom: 90px;
     }
 
     /* Top Header */
-    .header {
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      position: sticky;
-      top: 0;
-      background-color: #fff;
-      z-index: 10;
-    }
+    .header { padding: 12px 16px; display: flex; align-items: center; gap: 10px; sticky: top; background: #fff; z-index: 10; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+    .search-box { flex: 1; background: #f2f2f7; border-radius: 20px; padding: 8px 12px; display: flex; align-items: center; gap: 6px; }
+    .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
+    .cart-btn { position: relative; cursor: pointer; font-size: 22px; }
+    .badge { position: absolute; top: -5px; right: -8px; background: #ff3b30; color: #fff; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; }
 
-    .avatar-wrapper {
-      position: relative;
-    }
+    /* Chips */
+    .chips { display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { background: #f2f2f7; padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; }
+    .chip.active { background: #1d1d1f; color: #fff; }
 
-    .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: #d1e3ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
+    /* List */
+    .restaurant-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 16px; }
+    .card { display: flex; gap: 12px; background: #fff; border-radius: 12px; overflow: hidden; }
+    .thumb-wrap { position: relative; width: 96px; height: 96px; flex-shrink: 0; border-radius: 12px; overflow: hidden; }
+    .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .overlay-status { position: absolute; inset: 0; background: rgba(0,0,0,0.5); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; text-align: center; }
 
-    .avatar-badge {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 10px;
-      height: 10px;
-      background-color: #ff3b30;
-      border-radius: 50%;
-      border: 2px solid #fff;
-    }
+    .info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 2px 0; }
+    .info-head { display: flex; justify-content: space-between; align-items: flex-start; }
+    .title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .fav-btn { cursor: pointer; font-size: 18px; color: #ccc; transition: 0.2s; }
+    .fav-btn.active { color: #ff3b30; }
 
-    .search-bar {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      background-color: #f2f3f5;
-      padding: 8px 14px;
-      border-radius: 20px;
-      gap: 8px;
-    }
+    .sub { font-size: 12px; color: var(--subtext); }
+    .tag { align-self: flex-start; background: #e8f7ed; color: var(--accent); font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 4px; }
 
-    .search-bar input {
-      border: none;
-      background: transparent;
-      outline: none;
-      width: 100%;
-      font-size: 15px;
-      color: #333;
-    }
+    /* Cart Modal */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: flex-end; flex-direction: column; z-index: 100; }
+    .modal-content { background: #fff; border-radius: 20px 20px 0 0; padding: 20px; max-height: 70vh; overflow-y: auto; }
+    .modal-head { display: flex; justify-content: space-between; margin-bottom: 15px; }
 
-    .cart-btn {
-      position: relative;
-      font-size: 22px;
-      cursor: pointer;
-    }
-
-    .cart-badge {
-      position: absolute;
-      top: -6px;
-      right: -8px;
-      background-color: #ff3b30;
-      color: #fff;
-      font-size: 10px;
-      font-weight: bold;
-      padding: 2px 5px;
-      border-radius: 10px;
-    }
-
-    /* Filters horizontal scroll */
-    .filters {
-      display: flex;
-      gap: 8px;
-      padding: 8px 16px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .filters::-webkit-scrollbar {
-      display: none;
-    }
-
-    .chip {
-      background-color: #f2f3f5;
-      padding: 6px 14px;
-      border-radius: 16px;
-      font-size: 13px;
-      font-weight: 500;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-
-    .chip.filter-icon {
-      padding: 6px 10px;
-    }
-
-    /* Restaurant List */
-    .restaurant-list {
-      padding: 8px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .card {
-      display: flex;
-      gap: 12px;
-      position: relative;
-    }
-
-    .card-thumb {
-      width: 100px;
-      height: 100px;
-      border-radius: 16px;
-      object-fit: cover;
-      position: relative;
-      background-color: #eee;
-    }
-
-    .thumb-wrapper {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      flex-shrink: 0;
-    }
-
-    .time-badge {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      border-radius: 16px;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .card-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #111;
-    }
-
-    .heart-icon {
-      color: #888;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .details {
-      font-size: 13px;
-      color: #777;
-    }
-
-    .promo-tag {
-      align-self: flex-start;
-      background-color: #e8f7ed;
-      color: #00a651;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 6px;
-      border-radius: 4px;
-      margin-top: 2px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* Floating Dock */
-    .bottom-nav {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 32px);
-      max-width: 380px;
-      background-color: #ffffff;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      border-radius: 30px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 8px 16px;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 11px;
-      color: #666;
-      font-weight: 500;
-    }
-
-    .nav-item.active {
-      color: #000;
-      font-weight: bold;
-    }
-
-    .center-btn {
-      width: 44px;
-      height: 44px;
-      background-color: #ffe600;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: -20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      font-size: 18px;
-    }
-
-    .no-results {
-      text-align: center;
-      padding: 40px;
-      color: #888;
-      display: none;
-    }
+    /* Bottom Navigation */
+    .nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 390px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.12); border-radius: 30px; display: flex; justify-content: space-around; align-items: center; padding: 8px; z-index: 20; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--subtext); cursor: pointer; }
+    .nav-item.active { color: #000; font-weight: bold; }
+    .nav-center { width: 44px; height: 44px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; margin-top: -18px; }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-    <!-- Header -->
+  <div class="app">
     <header class="header">
-      <div class="avatar-wrapper">
-        <div class="avatar">👤</div>
-        <div class="avatar-badge"></div>
+      <div class="avatar" onclick="alert('Perfil de Usuário')">👤</div>
+      <div class="search-box">
+        🔍 <input type="text" id="searchInput" placeholder="Buscar açaí, burger, pizza..." oninput="handleSearch()">
       </div>
-      <div class="search-bar">
-        <span>🔍</span>
-        <input type="text" id="searchInput" placeholder="Buscar pratos ou restaurantes..." onkeyup="filterList()">
-      </div>
-      <div class="cart-btn">
-        🛒
-        <span class="cart-badge">18</span>
-      </div>
+      <div class="cart-btn" onclick="toggleCart()">🛒 <span class="badge" id="cartCount">0</span></div>
     </header>
 
-    <!-- Filter Pills -->
-    <div class="filters">
-      <div class="chip filter-icon">⚙️</div>
-      <div class="chip">Ordenar por ▾</div>
-      <div class="chip">Entrega grátis</div>
-      <div class="chip">VR ▾</div>
-      <div class="chip">Ofertas</div>
-      <div class="chip">Entrega da 99</div>
+    <div class="chips">
+      <div class="chip active" onclick="applyFilter('all', this)">Todos</div>
+      <div class="chip" onclick="applyFilter('free', this)">Entrega grátis</div>
+      <div class="chip" onclick="applyFilter('promo', this)">Ofertas 40% OFF</div>
+      <div class="chip" onclick="applyFilter('fav', this)">Favoritos ❤️</div>
     </div>
 
-    <!-- Restaurant Cards -->
-    <div class="restaurant-list" id="restaurantList">
-      
-      <div class="card" data-tags="chef gourmet pizza">
-        <div class="thumb-wrapper">
-          <img class="card-thumb" src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200" alt="Pizza">
-          <div class="time-badge">Abre às<br>11:00</div>
-        </div>
-        <div class="card-info">
-          <div class="card-header">
-            <span class="title">chef gourmet</span>
-            <span class="heart-icon">♡</span>
-          </div>
-          <div class="details">Pizza • 2.6km</div>
-          <div class="promo-tag">🏷️ 40% OFF</div>
-        </div>
-      </div>
+    <div class="restaurant-list" id="listContainer"></div>
 
-      <div class="card" data-tags="hot dog jesus reina lanches cachorro quente">
-        <div class="thumb-wrapper">
-          <img class="card-thumb" src="https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=200" alt="Hot Dog">
-          <div class="time-badge">Abre às<br>18:30</div>
-        </div>
-        <div class="card-info">
-          <div class="card-header">
-            <span class="title">Hot dog Jesus reina</span>
-            <span class="heart-icon">♡</span>
-          </div>
-          <div class="details">Lanches • 2.6km</div>
-          <div class="promo-tag">🏷️ 40% OFF</div>
-        </div>
-      </div>
-
-      <div class="card" data-tags="república dos sabores lanches hamburguer">
-        <div class="thumb-wrapper">
-          <img class="card-thumb" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200" alt="Hambúrguer">
-          <div class="time-badge">Abre às<br>19:00</div>
-        </div>
-        <div class="card-info">
-          <div class="card-header">
-            <span class="title">República dos sabores</span>
-            <span class="heart-icon">♡</span>
-          </div>
-          <div class="details">Lanches • 0.9km</div>
-          <div class="promo-tag">Itens com até 20% OFF</div>
-        </div>
-      </div>
-
-      <div class="card" data-tags="quintal do açaí acai doces">
-        <div class="thumb-wrapper">
-          <img class="card-thumb" src="https://images.unsplash.com/photo-1590301157890-4810ed352733?w=200" alt="Açaí">
-          <div class="time-badge">Abre às<br>11:31</div>
-        </div>
-        <div class="card-info">
-          <div class="card-header">
-            <span class="title">Quintal do Açaí</span>
-            <span class="heart-icon">♡</span>
-          </div>
-          <div class="details">Açaí • 0.9km</div>
-          <div class="promo-tag">🏷️ 40% OFF</div>
-        </div>
-      </div>
-
-      <div class="card" data-tags="churrasco do chef brasileira carne">
-        <div class="thumb-wrapper">
-          <img class="card-thumb" src="https://images.unsplash.com/photo-1544025162-d76694265947?w=200" alt="Churrasco">
-          <div class="time-badge">Abre às<br>10:00</div>
-        </div>
-        <div class="card-info">
-          <div class="card-header">
-            <span class="title">Churrasco do Chef</span>
-            <span class="heart-icon">♡</span>
-          </div>
-          <div class="details">Brasileira • 2.8km</div>
-          <div class="promo-tag">Itens com até 22% OFF</div>
-        </div>
-      </div>
-
-      <div id="noResults" class="no-results">Nenhum restaurante encontrado.</div>
-    </div>
-
-    <!-- Navigation Bar -->
-    <nav class="bottom-nav">
-      <div class="nav-item">
-        <span>🚗</span>
-        <span>Corrida</span>
-      </div>
-      <div class="center-btn">
-        <span>↑</span>
-      </div>
-      <div class="nav-item active">
-        <span>🛍️</span>
-        <span>Entrega</span>
-      </div>
-      <div class="nav-item">
-        <span>💳</span>
-        <span>Pay</span>
-      </div>
+    <nav class="nav">
+      <div class="nav-item" onclick="switchTab(this, 'Corrida')">🚗<span>Corrida</span></div>
+      <div class="nav-center" onclick="alert('Opções de entrega rápida')">↑</div>
+      <div class="nav-item active" onclick="switchTab(this, 'Entrega')">🛍️<span>Entrega</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'Pay')">💳<span>Pay</span></div>
     </nav>
+
+    <div class="modal" id="cartModal" onclick="toggleCart()">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-head">
+          <h3>Seu Carrinho</h3>
+          <span style="cursor:pointer;" onclick="toggleCart()">✕</span>
+        </div>
+        <div id="cartItems"><p style="color: #888;">Seu carrinho está vazio.</p></div>
+      </div>
+    </div>
   </div>
 
   <script>
-    function filterList() {
-      const input = document.getElementById('searchInput').value.toLowerCase();
-      const cards = document.querySelectorAll('.card');
-      let found = false;
+    const database = [
+      { id: 1, name: 'chef gourmet', category: 'Pizza', dist: '2.6km', promo: '40% OFF', open: '11:00', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150', isFav: false, isFree: false },
+      { id: 2, name: 'Hot dog Jesus reina', category: 'Lanches', dist: '2.6km', promo: '40% OFF', open: '18:30', img: 'https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=150', isFav: false, isFree: false },
+      { id: 3, name: 'República dos sabores', category: 'Lanches', dist: '0.9km', promo: 'Até 20% OFF', open: '19:00', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150', isFav: true, isFree: true },
+      { id: 4, name: 'Quintal do Açaí', category: 'Açaí', dist: '0.9km', promo: '40% OFF', open: '11:31', img: 'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=150', isFav: false, isFree: true },
+      { id: 5, name: 'Churrasco do Chef', category: 'Brasileira', dist: '2.8km', promo: 'Até 22% OFF', open: '10:00', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=150', isFav: false, isFree: false }
+    ];
 
-      cards.forEach(card => {
-        const tags = card.getAttribute('data-tags');
-        if (tags.toLowerCase().includes(input)) {
-          card.style.display = 'flex';
-          found = true;
-        } else {
-          card.style.display = 'none';
-        }
+    let state = { items: database, cart: [], activeFilter: 'all', searchKeyword: '' };
+
+    function render() {
+      const container = document.getElementById('listContainer');
+      container.innerHTML = '';
+
+      let filtered = state.items.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(state.searchKeyword) || item.category.toLowerCase().includes(state.searchKeyword);
+        if (state.activeFilter === 'free') return matchesSearch && item.isFree;
+        if (state.activeFilter === 'promo') return matchesSearch && item.promo.includes('40%');
+        if (state.activeFilter === 'fav') return matchesSearch && item.isFav;
+        return matchesSearch;
       });
 
-      document.getElementById('noResults').style.display = found ? 'none' : 'block';
+      if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding: 20px; color: #888;">Nenhum estabelecimento encontrado.</p>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        container.innerHTML += `
+          <div class="card">
+            <div class="thumb-wrap">
+              <img src="${item.img}" alt="${item.name}">
+              <div class="overlay-status">Abre às<br>${item.open}</div>
+            </div>
+            <div class="info">
+              <div class="info-head">
+                <span class="title">${item.name}</span>
+                <span class="fav-btn ${item.isFav ? 'active' : ''}" onclick="toggleFav(${item.id})">♥</span>
+              </div>
+              <div class="sub">${item.category} • ${item.dist} ${item.isFree ? '• <b>Entrega Grátis</b>' : ''}</div>
+              <div class="tag">🏷️ ${item.promo}</div>
+              <button onclick="addToCart('${item.name}')" style="margin-top:4px; padding: 4px; border:none; background:#eee; border-radius:4px; cursor:pointer; font-size:11px;">+ Adicionar Item</button>
+            </div>
+          </div>
+        `;
+      });
     }
+
+    function toggleFav(id) {
+      const target = state.items.find(i => i.id === id);
+      if (target) target.isFav = !target.isFav;
+      render();
+    }
+
+    function applyFilter(filter, el) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      state.activeFilter = filter;
+      render();
+    }
+
+    function handleSearch() {
+      state.searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+      render();
+    }
+
+    function addToCart(itemName) {
+      state.cart.push(itemName);
+      document.getElementById('cartCount').innerText = state.cart.length;
+      updateCartModal();
+    }
+
+    function updateCartModal() {
+      const cartContainer = document.getElementById('cartItems');
+      if (state.cart.length === 0) {
+        cartContainer.innerHTML = '<p style="color: #888;">Seu carrinho está vazio.</p>';
+      } else {
+        cartContainer.innerHTML = state.cart.map((item, idx) => `<p style="padding: 6px 0; border-bottom: 1px solid #eee;">1x ${item}</p>`).join('');
+      }
+    }
+
+    function toggleCart() {
+      const modal = document.getElementById('cartModal');
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function switchTab(el, tabName) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    render();
   </script>
 </body>
 </html>
