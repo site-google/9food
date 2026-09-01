@@ -863,7 +863,7 @@
       { id: "pf-bife", name: "Prato Feito Bife Acebolado", price: 22.00, desc: "Arroz, feijão, bife acebolado na chapa, batata frita e farofa.", cat: "prato-feito", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=80" },
       { id: "suco-laranja", name: "Suco Natural de Laranja 500ml", price: 8.00, desc: "Feito na hora, 100% fruta natural.", cat: "bebida", img: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=500&q=80" },
       { id: "coca-lata", name: "Coca-Cola Lata 350ml", price: 6.00, desc: "Gelada.", cat: "bebida", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&q=80" },
-      { id: "pudim", name: "Pudim de Leite Condensado (Fatia)", price: 8.00, desc: "Fatia generosa com calda de caramelo caseira.", cat: "sobremesa", img: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=500&q=80" }
+      { id: "pudim", name: "Pudim de Leite Condensado (Fatia)", price: 8.00, desc: "Fatia generosa com calda de caramelo caseira.", cat: "sobremesa", img: "https://images.unsplash.com/photo-1514517521153-1be72277b32f?w=500&q=80" }
     ];
 
     let cart = [];
@@ -949,6 +949,10 @@
       }
       updateCartUI();
       showToast(`${name} adicionado à sacola!`);
+
+      // Alerta via WhatsApp sempre que um produto for adicionado ao carrinho
+      const cartAlertMsg = `🛒 [ALERTA DE CARRINHO]\nUm produto foi adicionado à sacola:\n• 1x ${name} (${formatMoney(price)})\n${details ? `Detalhes: ${details}\n` : ''}Total de itens distintos na sacola: ${cart.length}`;
+      sendWhatsAppApiNotification(cartAlertMsg);
     }
 
     function updateQty(index, delta) {
@@ -974,15 +978,15 @@
     }
 
     function applyCoupon() {
-      const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+      const code = document.getElementById('coupon-input').value.trim().toLowerCase();
       const feedback = document.getElementById('coupon-feedback');
 
-      if (code === "METADE") {
+      if (code === "setembro50") {
         appliedDiscount = 0.5;
-        activeCouponName = "METADE";
+        activeCouponName = "SETEMBRO50";
         feedback.style.color = "#16a34a";
-        feedback.innerText = "✨ Cupom aplicado com sucesso! 50% de desconto.";
-        showToast("Cupom METADE aplicado!");
+        feedback.innerText = "✨ Cupom setembro50 aplicado com sucesso! 50% de desconto.";
+        showToast("Cupom setembro50 aplicado!");
       } else {
         appliedDiscount = 0;
         activeCouponName = "";
@@ -1187,13 +1191,14 @@
     function handleCheckoutSubmit() {
       const payMethod = document.getElementById('pay-method').value;
 
+      // Alerta via WhatsApp de pedido finalizado
+      const finalMsg = buildOrderMessage();
+      sendWhatsAppApiNotification(finalMsg);
+
       if (payMethod === 'PIX') {
         closeCheckoutModal();
         gerarPixEExibirModal();
       } else {
-        const msg = buildOrderMessage();
-        sendWhatsAppApiNotification(msg);
-        
         closeCheckoutModal();
         clearCart();
         showToast("Pedido finalizado com sucesso!");
@@ -1246,9 +1251,6 @@
           document.getElementById('pix-qrcode').src = data.qrcodeUrl;
           document.getElementById('pix-copia-cola').value = data.copyPaste;
           pixContent.style.display = 'block';
-
-          const msg = buildOrderMessage();
-          sendWhatsAppApiNotification(msg);
         } else {
           pixErro.innerText = "Erro ao gerar o PIX: " + (data.message || JSON.stringify(data));
           pixErro.style.display = 'block';
