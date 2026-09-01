@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Marmitaria Sabor Caseiro | Cardápio Online</title>
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -572,13 +571,11 @@
 </head>
 <body>
 
-  <!-- TOAST DE NOTIFICAÇÃO -->
   <div id="toast-notification" class="toast-notification">
     <span style="font-size: 1.2rem;">✨</span>
     <span id="toast-message">Notificação</span>
   </div>
 
-  <!-- HEADER -->
   <header>
     <div class="brand">
       <span class="brand-icon">🍲</span>
@@ -587,13 +584,12 @@
     <p style="font-size: 0.85rem; opacity: 0.8;">Comida caseira fresca feita com amor e tempero da fazenda</p>
     <div class="status-badge">
       <span class="status-dot"></span>
-      <span>Aberto para Pedidos</span>
+      <span>Aberto para Pedidos • 20-40 min</span>
     </div>
   </header>
 
   <div class="container">
 
-    <!-- TAB CATEGORIAS -->
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="filterCategory('all', this)">🍱 Cardápio</button>
       <button class="tab-btn" onclick="filterCategory('monte-marmita', this)">🛠️ Monte sua Marmita</button>
@@ -602,7 +598,6 @@
       <button class="tab-btn" onclick="filterCategory('sobremesa', this)">Sobremesas</button>
     </div>
 
-    <!-- MONTADOR DE MARMITAS (3 TAMANHOS) -->
     <div class="builder-card" id="cat-monte-marmita">
       <div class="builder-header">
         <span style="font-size: 1.5rem;">🍱</span>
@@ -656,17 +651,14 @@
       </button>
     </div>
 
-    <!-- PRODUTOS DO CARDÁPIO -->
     <div id="menu-sections"></div>
 
   </div>
 
-  <!-- RODAPÉ DINÂMICO -->
   <footer class="site-footer" id="dynamic-footer">
     Marmitaria Sabor Caseiro © 2026 - Todos os direitos reservados.
   </footer>
 
-  <!-- BARRA INFERIOR DE CARRINHO -->
   <div class="cart-bar">
     <div class="cart-info">
       <span class="cart-count" id="cart-count-label">0 itens na sacola</span>
@@ -677,7 +669,6 @@
     </button>
   </div>
 
-  <!-- MODAL DO CARRINHO -->
   <div class="modal-overlay" id="cart-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -685,11 +676,9 @@
         <button class="btn-close" onclick="closeCartModal()">&times;</button>
       </div>
       <div class="modal-body" id="cart-items-container">
-        <!-- Renderizado dinamicamente -->
-      </div>
+        </div>
       <div class="modal-footer" id="cart-footer">
         
-        <!-- CAMPO DE CUPOM DE DESCONTO -->
         <div style="margin-bottom: 12px; display: flex; gap: 8px;">
           <input type="text" id="coupon-input" class="form-control" placeholder="Digite seu cupom" style="text-transform: uppercase;">
           <button class="btn-add" style="background: var(--secondary); white-space: nowrap;" onclick="applyCoupon()">Aplicar</button>
@@ -722,7 +711,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE CHECKOUT -->
   <div class="modal-overlay" id="checkout-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -791,7 +779,6 @@
             </select>
           </div>
 
-          <!-- CAMPOS DE CARTÃO DE CRÉDITO -->
           <div id="card-fields" style="display: none; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1rem;">
             <p style="font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 8px;">💳 Dados do Cartão de Crédito</p>
             <div class="form-group">
@@ -827,7 +814,6 @@
     </div>
   </div>
 
-  <!-- MODAL PIX -->
   <div class="modal-overlay" id="pix-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -867,7 +853,6 @@
     </div>
   </div>
 
-  <!-- SCRIPT -->
   <script>
     const CONFIG = {
       WHATSAPP_NUMBER: "5522992195418",
@@ -1188,6 +1173,11 @@
 
     function goToCheckout() {
       if (cart.length === 0) return;
+      const subtotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+      if (subtotal < 30.00) {
+        alert("O pedido mínimo é de R$ 30,00. Adicione mais itens à sua sacola.");
+        return;
+      }
       closeCartModal();
       document.getElementById('checkout-modal').style.display = 'flex';
     }
@@ -1308,7 +1298,6 @@
         closeCheckoutModal();
         clearCart();
         showToast("Pedido finalizado com sucesso!");
-        alert("Obrigado! Seu pedido foi enviado para o nosso WhatsApp com sucesso.");
       }
     }
 
@@ -1372,7 +1361,6 @@
       closePixModal();
       clearCart();
       showToast("Pedido PIX registrado com sucesso!");
-      alert("Seu pedido foi recebido e a confirmação enviada para o nosso sistema!");
     }
 
     function copiarPix() {
@@ -1394,7 +1382,6 @@
     }
   </script>
 
-  <!--Start of Tawk.to Script-->
   <script type="text/javascript">
   var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
   (function(){
@@ -1406,6 +1393,5 @@
   s0.parentNode.insertBefore(s1,s0);
   })();
   </script>
-  <!--End of Tawk.to Script-->
-</body>
+  </body>
 </html>
