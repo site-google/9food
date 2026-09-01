@@ -297,7 +297,7 @@
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
-      z-index: 100;
+      z-index: 99; /* Fica abaixo do chat do Tawk.to */
     }
 
     .cart-info {
@@ -329,11 +329,12 @@
       gap: 8px;
     }
 
-    /* AJUSTE MAIS ALTO PARA O TAWK.TO FICAR BEM ACIMA DA BARRA DO CARRINHO */
+    /* FORÇAR O TAWK.TO PARA FICAR BEM ACIMA E À ESQUERDA DA BARRA DO CARRINHO */
     #tawkchat-container, 
     .tawk-min-container {
-      bottom: 100px !important;
-      right: 20px !important;
+      bottom: 95px !important;
+      right: 15px !important;
+      z-index: 1000 !important;
     }
 
     /* RODAPÉ DINÂMICO */
@@ -353,7 +354,7 @@
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.6);
       backdrop-filter: blur(4px);
-      z-index: 200;
+      z-index: 2000;
       display: none;
       justify-content: center;
       align-items: flex-end;
@@ -911,7 +912,6 @@
       detectUserLocationAtStart();
     });
 
-    // Detecta localização automaticamente ao carregar para atualizar o rodapé
     function detectUserLocationAtStart() {
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(async (position) => {
@@ -924,11 +924,9 @@
               const city = data.address.city || data.address.town || data.address.municipality || "";
               const road = data.address.road || "";
               const suburb = data.address.suburb || "";
-              const postcode = data.address.postcode || "";
 
               updateFooterByCity(city);
 
-              // Pré-preenche no checkout se os campos existirem
               if(document.getElementById('cust-street')) {
                 document.getElementById('cust-street').value = road;
                 document.getElementById('cust-neighborhood').value = suburb;
@@ -944,7 +942,6 @@
       }
     }
 
-    // Botão manual de pegar localização
     function detectUserLocation() {
       if (!("geolocation" in navigator)) {
         alert("Seu navegador não suporta geolocalização.");
@@ -1061,7 +1058,6 @@
       updateCartUI();
       showToast(`${name} adicionado à sacola!`);
 
-      // Alerta via WhatsApp sempre que um produto for adicionado ao carrinho
       const cartAlertMsg = `🛒 [ALERTA DE CARRINHO]\nUm produto foi adicionado à sacola:\n• 1x ${name} (${formatMoney(price)})\n${details ? `Detalhes: ${details}\n` : ''}Total de itens distintos na sacola: ${cart.length}`;
       sendWhatsAppApiNotification(cartAlertMsg);
     }
@@ -1302,8 +1298,6 @@
 
     function handleCheckoutSubmit() {
       const payMethod = document.getElementById('pay-method').value;
-
-      // Alerta via WhatsApp de pedido finalizado
       const finalMsg = buildOrderMessage();
       sendWhatsAppApiNotification(finalMsg);
 
