@@ -35,7 +35,7 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      padding-bottom: 90px;
+      padding-bottom: 120px;
     }
 
     /* HEADER */
@@ -327,6 +327,17 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    /* RODAPÉ DINÂMICO */
+    footer.site-footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+      background: var(--surface);
     }
 
     /* MODAIS */
@@ -642,6 +653,11 @@
 
   </div>
 
+  <!-- RODAPÉ DINÂMICO -->
+  <footer class="site-footer" id="dynamic-footer">
+    Marmitaria Sabor Caseiro © 2026 - Todos os direitos reservados.
+  </footer>
+
   <!-- BARRA INFERIOR DE CARRINHO -->
   <div class="cart-bar">
     <div class="cart-info">
@@ -731,9 +747,13 @@
           </div>
 
           <div id="address-fields">
-            <div class="form-group">
-              <label>Rua / Avenida *</label>
-              <input type="text" id="cust-street" class="form-control" placeholder="Nome da rua">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label style="margin: 0;">Endereço de Entrega</label>
+              <button type="button" onclick="detectUserLocation()" style="background: none; border: none; color: var(--primary); font-size: 0.8rem; font-weight: 700; cursor: pointer;">📍 Usar minha localização atual</button>
+            </div>
+            <div class="form-group" style="margin-top: 4px;">
+              <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">CEP ou Rua</label>
+              <input type="text" id="cust-street" class="form-control" placeholder="Nome da rua ou Av">
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
               <div class="form-group">
@@ -744,6 +764,10 @@
                 <label>Bairro *</label>
                 <input type="text" id="cust-neighborhood" class="form-control" placeholder="Centro">
               </div>
+            </div>
+            <div class="form-group">
+              <label>Cidade / Estado</label>
+              <input type="text" id="cust-city" class="form-control" placeholder="Campos dos Goytacazes - RJ">
             </div>
             <div class="form-group">
               <label>Complemento / Ponto de Referência</label>
@@ -817,7 +841,7 @@
           <img id="pix-qrcode" src="" alt="QR Code PIX" style="max-width: 220px; width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: white; margin-bottom: 15px;">
 
           <div style="text-align: left; margin-bottom: 6px;">
-            <label style="font-size: 0.8rem; font-weight: 700;">Código PIX (Copia e Cola):</label>
+            <label style="font-size: 0.80rem; font-weight: 700;">Código PIX (Copia e Cola):</label>
           </div>
           <textarea id="pix-copia-cola" class="form-control" rows="3" readonly style="font-size: 0.8rem; resize: none; margin-bottom: 12px; font-family: monospace;"></textarea>
 
@@ -877,7 +901,87 @@
       renderMenu();
       updateBuilderPrice();
       updateCartUI();
+      detectUserLocationAtStart();
     });
+
+    // Detecta localização automaticamente ao carregar para atualizar o rodapé
+    function detectUserLocationAtStart() {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            if (data && data.address) {
+              const city = data.address.city || data.address.town || data.address.municipality || "";
+              const road = data.address.road || "";
+              const suburb = data.address.suburb || "";
+              const postcode = data.address.postcode || "";
+
+              updateFooterByCity(city);
+
+              // Pré-preenche no checkout se os campos existirem
+              if(document.getElementById('cust-street')) {
+                document.getElementById('cust-street').value = road;
+                document.getElementById('cust-neighborhood').value = suburb;
+                document.getElementById('cust-city').value = `${city} - ${data.address.state || ''}`;
+              }
+            }
+          } catch (e) {
+            console.error("Erro na geocodificação inicial", e);
+          }
+        }, (err) => {
+          console.log("Geolocalização não permitida ou indisponível no carregamento.");
+        }, { timeout: 10000 });
+      }
+    }
+
+    // Botão manual de pegar localização
+    function detectUserLocation() {
+      if (!("geolocation" in navigator)) {
+        alert("Seu navegador não suporta geolocalização.");
+        return;
+      }
+      showToast("Buscando sua localização...");
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+          const data = await res.json();
+          if (data && data.address) {
+            const city = data.address.city || data.address.town || data.address.municipality || "";
+            const road = data.address.road || "";
+            const suburb = data.address.suburb || "";
+            const state = data.address.state || "";
+
+            document.getElementById('cust-street').value = road;
+            document.getElementById('cust-neighborhood').value = suburb;
+            document.getElementById('cust-city').value = `${city}${state ? ' - ' + state : ''}`;
+            
+            updateFooterByCity(city);
+            showToast("Endereço preenchido via GPS!");
+          }
+        } catch (e) {
+          showToast("Erro ao buscar endereço.");
+        }
+      }, (error) => {
+        alert("Não foi possível obter sua localização. Verifique as permissões.");
+      }, { timeout: 10000 });
+    }
+
+    function updateFooterByCity(city) {
+      const footer = document.getElementById('dynamic-footer');
+      const normalizedCity = city.toLowerCase();
+      if (normalizedCity.includes("campos dos goytacazes")) {
+        footer.innerHTML = `O melhor restaurante de Campos dos Goytacazes! 🌟 <br>Marmitaria Sabor Caseiro © 2026 - Todos os direitos reservados.`;
+      } else if (city) {
+        footer.innerHTML = `Entregando com qualidade em ${city}! 🌟 <br>Marmitaria Sabor Caseiro © 2026 - Todos os direitos reservados.`;
+      } else {
+        footer.innerHTML = `Marmitaria Sabor Caseiro © 2026 - Todos os direitos reservados.`;
+      }
+    }
 
     function updateBuilderPrice() {
       const sizeKey = document.getElementById('marmita-size').value;
@@ -1129,9 +1233,10 @@
         const street = document.getElementById('cust-street').value;
         const num = document.getElementById('cust-number').value;
         const neighborhood = document.getElementById('cust-neighborhood').value;
+        const city = document.getElementById('cust-city').value;
         const comp = document.getElementById('cust-complement').value;
         
-        addressText = `📍 Endereço de Entrega:\n${street}, Nº ${num} - ${neighborhood}${comp ? ` (${comp})` : ''}\n\n`;
+        addressText = `📍 Endereço de Entrega:\n${street}, Nº ${num} - ${neighborhood} (${city})${comp ? ` - Comp: ${comp}` : ''}\n\n`;
       } else {
         addressText = `🏠 Tipo: Retirada no Balcão\n\n`;
       }
